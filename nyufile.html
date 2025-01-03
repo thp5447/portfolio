@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Need You to Undelete File - Project</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <h1>Need You to Undelete File (NYUFILE)</h1>
+</header>
+<nav class="project-nav">
+    <a href="index.html">Home</a>
+</nav>
+
+<div class="container">
+    <section>
+        <h2>Project Overview</h2>
+        <p>A utility for managing FAT32 disk images. It supports options to print file system metadata (-i), list root directory contents (-l), and recover files (-r). It utilizes system calls like pread and mmap to read and modify disk data efficiently. Key features include parsing the FAT structure to locate files, handling deleted files for recovery, and checking ambiguous file matches. The program also includes SHA-1 validation for data integrity during recovery.</p>
+
+        <h3>Key Features</h3>
+        <ul>
+            <li>FAT32 disk image management</li>
+            <li>File recovery with SHA-1 validation</li>
+            <li>Parsing FAT structure for metadata and root directory contents</li>
+        </ul>
+
+        <h3>Technologies Used</h3>
+        <ul>
+            <li>C</li>
+            <li>File system programming</li>
+            <li>System calls (pread, mmap)</li>
+        </ul>
+
+        <h3>Challenges Faced</h3>
+        <p>Handling ambiguous file matches during recovery and ensuring data integrity with SHA-1 validation were complex tasks. The program overcame these challenges by implementing efficient parsing algorithms and validation mechanisms.</p>
+    </section>
+</div>
+
+<div class="project">
+    <pre>
+//This program was created as part of the Operating Systems coursework at New York University with project specifications provided by Professor Yang Tang.
+//Developed by Travis Perry
+
+#include &ltstdio.h&gt
+#include &ltstdlib.h&gt
+#include &ltstring.h&gt
+#include &ltunistd.h&gt
+#include &ltfcntl.h&gt
+#include &ltstdint.h&gt
+#include &ltsys/mman.h&gt
+#include &ltsys/stat.h&gt
+
+int fd;
+uint32_t fatStart;
+uint8_t *addr;
+uint32_t dataAreaStart;
+uint32_t clusterSize;
+size_t lenFilename;
+
+
+int checkAmbig(size_t i, uint32_t currCluster, char *fnNoFirstLetter){
+    uint32_t clusterOffset = dataAreaStart + (currCluster - 2) * clusterSize;
+    uint8_t *cluster = addr + clusterOffset;
+    int ambigMatch=1;
+    for (; i < clusterSize; i += 32) {
+        
+        if (cluster[i] == 0x00) {
+            ambigMatch=0;
+            continue;
+        }
+        
+        ambigMatch=1;
+        
+        if ((uint8_t)cluster[i] == 0xE5) {
+            ambigMatch=1;
+            char name[12];
+            memcpy(name, &cluster[i], 11);
+            name[11]='\0';
+            
+            
+            size_t j=0;
+            for (size_t i=1; i<lenFilename;i++){
+                if (fnNoFirstLetter[j]!=name[i]){
+                    ambigMatch=0;
+                    break;
+                }
+                j++;
+            }
+            if (ambigMatch){
+                if (j >= strlen(fnNoFirstLetter)) {
+                    if (name[8]!=' '){
+                        ambigMatch = 0;
+                    }
+                }
+                else{
+                    j = lenFilename;
+                    for (int i=8;i<11;i++){
+                        if (fnNoFirstLetter[j]=='\0'){
+                            if(name[i]!=' '){
+                                ambigMatch=0;
+                            }
+                            break;
+                        }
+                        if (fnNoFirstLetter[j]!=name[i]){
+                            ambigMatch=0;
+                            break;
+                        }
+                        j++;
+                    }
+                }
+            }
+        }
+        else{
+            ambigMatch=0;
+        }
+        
+        if (ambigMatch){
+            break;
+        }
+    }
+    return (ambigMatch);
+}
+    
+
+               
+               
+               
+               
+int main(int argc, char *argv[]){
+    char *tokens[10] ={NULL};
+    int count = 0;
+
+    for (int i = optind; i < argc && count < 10; i++) {
+        tokens[count] = (char *)malloc(strlen(argv[i]) + 1);
+        strcpy(tokens[count], argv[i]);
+        count++;
+    }
+    
+    fd = open(tokens[0], O_RDWR);
+    if (fd==-1){
+        printf("Usage: ./nyufile disk <options>\n  -i                     Print the file system information.\n  -l                     List the root directory.\n  -r filename [-s sha1]  Recover a contiguous file.\n  -R filename -s sha1    Recover a possibly non-contiguous file.\n");
+        close(fd);
+        exit(1);
+    }
+    uint8_t bootSector[512];
+    pread(fd,bootSector,512,0);
+    
+    uint8_t numFATs = bootSector[16];
+    uint32_t sectorsPerFAT =  *(uint32_t *)&bootSector[36];
+    
+    uint16_t bytesPerSector = *(uint16_t *)&bootSector[11];
+    uint8_t sectorsPerCluster = bootSector[13];
+    uint16_t reservedSectors = *(uint16_t *)&bootSector[14];
+    dataAreaStart = (reservedSectors + (numFATs * sectorsPerFAT)) * bytesPerSector;
+
+    uint32_t fatStart = reservedSectors * bytesPerSector;
+
+    uint32_t rootDirStartCluster = *(uint32_t *)&bootSector[44];
+    uint32_t fatSize = sectorsPerFAT * bytesPerSector;
+
+    clusterSize = bytesPerSector * sectorsPerCluster;
+    
+    if (tokens[1]==NULL){
+        printf("Usage: ./nyufile disk <options>\n  -i                     Print the file system information.\n  -l                     List the root directory.\n  -r filename [-s sha1]  Recover a contiguous file.\n  -R filename -s sha1    Recover a possibly non-contiguous file.\n");
+        exit(1);
+    }
+    else if (strcmp(tokens[1],"-i")==0) {
+        printf("Number of FATs = %d\nNumber of bytes per sector = %d\nNumber of sectors per cluster = %d\nNumber of reserved sectors = %d\n",numFATs,bytesPerSector,sectorsPerCluster,reservedSectors);
+    }
+    else if (strcmp(tokens[1],"-l")==0) {
+        
+        uint32_t currCluster=rootDirStartCluster;
+        int numEntries=0;
+        while (currCluster < 0x0FFFFFF8){
+            uint32_t clusterOffset = dataAreaStart + (currCluster - 2) * clusterSize;
+            
+            uint8_t cluster[clusterSize];
+            pread(fd, cluster, clusterSize, clusterOffset);
+            
+            for (size_t i = 0; i < clusterSize; i += 32) {
+                if (cluster[i] == 0x00) {
+                    continue;
+                }
+                
+                if ((uint8_t)cluster[i] == 0xE5) {
+                    continue;
+                }
+                uint8_t attributes = cluster[i + 11];
+                uint16_t highCluster = *(uint16_t *)&cluster[i + 20];
+                uint16_t lowCluster = *(uint16_t *)&cluster[i + 26];
+                uint32_t startingCluster = (highCluster << 16) | lowCluster;
+                uint32_t fileSize = *(uint32_t *)&cluster[i + 28];
+                
+                char name[12];
+                memcpy(name, &cluster[i], 11);
+
+                int endFilename = 8;
+                for (int i = 0; i < 8; i++) {
+                    if (name[i] == ' ') {
+                        endFilename = i;
+                        break;
+                    }
+                }
+
+                char ext[4] = {0};
+                int j = 0;
+                for (int i = 8; i < 11; i++) {
+                    if (name[i]==' '){
+                        ext[j]='\0';
+                    }
+                    else{
+                        ext[j] = name[i];
+                    }
+                    j++;
+                }
+
+                if (ext[0] != ' ' && ext[0] != '\0') {
+                    name[endFilename] = '.';
+                    for (int i = endFilename + 1; i < endFilename + 4; i++) {
+                        name[i] = ext[i - endFilename - 1];
+                    }
+                    name[endFilename + 4] = '\0';
+                } else {
+                    name[endFilename] = '\0';
+                }
+
+                printf("%s",name);
+                
+                if (attributes==0x10){
+                    printf("/ (starting cluster = %d)\n",startingCluster);
+                }
+                else if (attributes==0x20){
+                    printf(" (size = ");
+                    if (fileSize==0){
+                        printf("0)\n");
+                    }
+                    else {
+                        printf("%d, starting cluster = %d)\n",fileSize,startingCluster);
+                    }
+                }
+                numEntries++;
+            }
+            uint32_t fatOffset = fatStart + (currCluster * 4);
+            uint32_t nextCluster;
+            pread(fd, &nextCluster, 4, fatOffset);
+            nextCluster = nextCluster & 0x0FFFFFFF;
+            currCluster = nextCluster;
+
+        }
+        
+        printf("Total number of entries = %d\n",numEntries);
+    }
+    else if (strcmp(tokens[1],"-r")==0) {
+        int boolSha=0;
+        
+        if (tokens[3]!=NULL){
+            if (strcmp(tokens[3],"-s")==0){
+                boolSha=1;
+            }
+        }
+        char *filename = tokens[2];
+        int lenExt=0;
+        int boolCountExt=0;
+        size_t i=0;
+        for (;i<strlen(filename);i++){
+            if (boolCountExt){
+                lenExt++;
+            }
+            else if (filename[i]=='.'){
+                lenFilename=i;
+                boolCountExt=1;
+            }
+        }
+        if (!boolCountExt) {
+            lenFilename=strlen(filename);
+        }
+        char fnNoFirstLetter[11]={0};
+        for (int i=1;i<11;i++){
+            if (filename[i]=='\0'){
+                break;
+            }
+            fnNoFirstLetter[i-1]=filename[i];
+        }
+        
+        uint32_t currCluster=rootDirStartCluster;
+        int boolMatch=1;
+        int boolAmbig=0;
+        struct stat sb;
+        fstat(fd, &sb);
+        
+        addr = mmap(NULL, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        
+        do {
+            uint32_t clusterOffset = dataAreaStart + (currCluster - 2) * clusterSize;
+            uint8_t *cluster = addr + clusterOffset;
+            
+            for (size_t i = 0; i < clusterSize; i += 32) {
+                if (cluster[i] == 0x00) {
+                    continue;
+                }
+                boolMatch=1;
+                
+                if ((uint8_t)cluster[i] == 0xE5) {
+                    char name[12];
+                    memcpy(name, &cluster[i], 11);
+                    name[11]='\0';
+                    
+                    size_t j=0;
+                    for (size_t k=1; k<lenFilename;k++){
+                        if (fnNoFirstLetter[j]!=name[k]){
+                            boolMatch=0;
+                            //j++;
+                            break;
+                        }
+                        j++;
+                    }
+                    if (boolMatch){
+                        if (j >= strlen(fnNoFirstLetter)) {
+                            if (name[8]!=' '){
+                                boolMatch = 0;
+                            }
+                        }
+                        else{
+                            j = lenFilename;
+                            for (int k=8;k<11;k++){
+                                if (fnNoFirstLetter[j]=='\0'){
+                                    if(name[k]!=' '){
+                                        boolMatch=0;
+                                    }
+                                    break;
+                                }
+                                if (fnNoFirstLetter[j]!=name[k]){
+                                    boolMatch=0;
+                                    break;
+                                }
+                                j++;
+                            }
+                            
+                        }
+                    }
+                    
+                    if (boolMatch){ //FOUND OUR MATCHING FILE,NOW RECOVER IT
+                        boolAmbig = checkAmbig(i+32,currCluster, fnNoFirstLetter);
+                        if (boolAmbig){
+                            break;
+                        }
+                        
+                        
+                        uint16_t highCluster;
+                        uint16_t lowCluster;
+                        memcpy(&highCluster, &cluster[i + 20], sizeof(uint16_t));
+                        memcpy(&lowCluster, &cluster[i + 26], sizeof(uint16_t));
+                        uint32_t startingCluster = (highCluster << 16) | lowCluster;
+                        uint32_t fileSize = *(uint32_t *)&cluster[i + 28];
+                        
+                        if (boolSha && startingCluster==0){
+                            if (strcmp(tokens[4],"da39a3ee5e6b4b0d3255bfef95601890afd80709")!=0){
+                                boolMatch=0;
+                                continue;
+                            }
+                        }
+                        
+                        
+                        cluster[i]=filename[0];
+                        msync(addr, sb.st_size, MS_SYNC);
+                        uint32_t *fat = NULL;
+                        if (fileSize>clusterSize){
+                            uint32_t currFatCluster = startingCluster;
+                            
+                            for (int fatIndex = 0; fatIndex < numFATs; fatIndex++) {
+                                fat = (uint32_t *)(addr + fatStart + (fatIndex * fatSize));
+                                
+                                while (fat[currFatCluster] < 0x0FFFFFF8) {
+                                    fat[currFatCluster] = currFatCluster+1;
+                                    currFatCluster++;
+                                }
+                            }
+                            
+                        }
+                        else {
+                            if (startingCluster!=0){
+                                for (int fatIndex=0;fatIndex<numFATs;fatIndex++){
+                                    fat = (uint32_t *)(addr + fatStart + (fatIndex * fatSize));
+                                    fat[startingCluster] = 0x0FFFFFF8;
+                                }
+                            }
+                        }
+                        msync(addr, sb.st_size, MS_SYNC);
+                        
+                        break;
+                    }
+                }
+                
+                else{
+                    boolMatch=0;
+                }
+            }
+            if (boolMatch){
+                break;
+            }
+            uint32_t fatOffset = fatStart + (currCluster * 4);
+            uint32_t nextCluster;
+            pread(fd, &nextCluster, 4, fatOffset);
+            nextCluster = nextCluster & 0x0FFFFFFF;
+            currCluster = nextCluster;
+        }
+        while(currCluster < 0x0FFFFFF8);
+        
+        if (boolAmbig){
+            printf("%s: multiple candidates found\n",filename);
+        }
+        else if (!boolMatch){
+            printf("%s: file not found\n",filename);
+        }
+        else{
+            if (boolSha){
+                printf("%s: successfully recovered with SHA-1\n",filename);
+            }
+            else{
+                printf("%s: successfully recovered\n",filename);
+            }
+            
+        }
+        munmap(addr,sb.st_size);
+        
+    }
+    else {
+        printf("Usage: ./nyufile disk <options>\n  -i                     Print the file system information.\n  -l                     List the root directory.\n  -r filename [-s sha1]  Recover a contiguous file.\n  -R filename -s sha1    Recover a possibly non-contiguous file.\n");
+    }
+
+    close(fd);
+    for (int i = 0; i < count; i++) {
+        free(tokens[i]);
+    }
+    
+}
+    </pre>
+</div>
+<footer>
+    <p>&copy; 2025 Travis Perry. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

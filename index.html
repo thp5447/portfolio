@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travis Perry's Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <h1>Travis Perry's Portfolio</h1>
+    <p>Welcome to my portfolio! Below, you'll find a showcase of projects I've worked on.</p>
+</header>
+
+<nav>
+    <a href="#projects">Projects</a>
+    <a href="#about">About Me</a>
+    <a href="#contact">Contact</a>
+</nav>
+
+<div class="container" id="projects">
+    <h2>Projects</h2>
+
+    <div class="project">
+        <h2>Nobles and Protectors</h2>
+        <p>This project was built using a template provided by Professor John Sterling as part of the Object-Oriented Programming coursework at New York University's Tandon School of Engineering. This is a project using inheritance, polymorphism, and interactions between characters in a medieval-inspired world. This project is a fantasy battle simulation where nobles (like Lords and lone fighters) recruit protectors such as archers, swordsmen, and wizards to form armies and engage in battles. The outcome of each battle depends on the comparative strength of the nobles and their armies, with dynamic adjustments to strength and survival.</p>
+        <a href="nobles_and_warriors.html" target="_blank">View Project</a>
+    </div>
+
+    <div class="project">
+        <h2>Now You Understand C (NYUC)</h2>
+        <p>This project explores the intricacies of dynamic argument manipulation in C by implementing custom functions to transform command-line arguments into uppercase and lowercase formats. Highlighting the unique challenges of memory allocation, safe handling of variable arguments, and pointer manipulation, the code emphasizes efficiency and robustness. The successful implementation of reusable functions like manipulate_args and free_copied_args demonstrates accomplishments in designing modular and flexible solutions for string processing tasks.</p>
+        <a href="nyuc.html" target="_blank">View Project</a>
+    </div>
+
+    <div class="project">
+        <h2>Not Yet Usable Shell (NYUSH)</h2>
+        <p>This project focuses on building a custom shell implementation in C, addressing complex challenges like signal handling, job control, and pipe-based inter-process communication. The implementation demonstrates accomplishments in processing user input to handle commands, redirection, and piping. Unique highlights include a dynamic system for managing background jobs with suspended state handling and an elegant mechanism for orderly job reactivation. Through modularized functions like execute_command, this project tackles intricate challenges such as robust memory management, error handling, and multi-process coordination, showcasing significant achievements in system-level programming.</p>
+        <a href="nyush.html" target="_blank">View Project</a>
+    </div>
+
+    <div class="project">
+        <h2>Not Your Usual Encoder (NYUENC)</h2>
+        <p>This C program implements parallel and sequential Run-Length Encoding (RLE) for compressing text files. In parallel mode (-j option), it uses pthread threads to divide the data into chunks, encode them concurrently, and merge overlapping results. In sequential mode, it processes files one at a time, handling edge cases for overlapping characters. The program efficiently reads files using mmap and synchronizes tasks using mutexes and condition variables for thread-safe operations.</p>
+        <a href="nyuenc.html" target="_blank">View Project</a>
+    </div>
+
+    <div class="project">
+        <h2>Need You To Undelete File (NYUFILE)</h2>
+        <p>A utility for managing FAT32 disk images. It supports options to print file system metadata (-i), list root directory contents (-l), and recover files (-r). It utilizes system calls like pread and mmap to read and modify disk data efficiently. Key features include parsing the FAT structure to locate files, handling deleted files for recovery, and checking ambiguous file matches. The program also includes SHA-1 validation for data integrity during recovery.</p>
+        <a href="nyufile.html" target="_blank">View Project</a>
+    </div>
+    
+    <div class="project">
+        <h2>Basic XSS Attacks</h2>
+        <p>This code demonstrates a malicious script designed to steal cookies by sending the user's document.cookie to a remote webhook URL using fetch requests. It employs obfuscation techniques, such as converting strings into character codes and manipulating strings dynamically, to evade detection. This script is an example of a Cross-Site Scripting (XSS) attack and highlights the importance of securing web applications against such vulnerabilities.</p>
+        <a href="basic_xss_attacks.html" target="_blank">View Project</a>
+    </div>
+
+</div>
+
+<div class="container" id="about">
+    <h2>About Me</h2>
+    <p>Hi, I'm Travis Perry, a Computer Science and Mathematics student at New York University, graduating a semester early. Originally from Fairfax, Virginia, I'm passionate about combining my technical skills and analytical mindset to tackle real-world challenges. I have experience working with C, C++, and Python, and I’m eager to apply the knowledge I've gained in my coursework to a professional environment through an internship.</p>
+     <p>As a dedicated NCAA Division 3 track and field athlete, I am one of the top performers in my event and commit 2-3 hours daily to training. This experience has taught me the importance of time management, discipline, and teamwork—skills I believe will help me excel in a collaborative and fast-paced work environment. My strong work ethic drives me to always give my best, whether it's in my athletic pursuits or in my academic and professional endeavors.</p>
+    <p>I'm currently seeking an internship where I can gain hands-on experience, contribute to meaningful projects, and continue developing my skills in computer science. I'm particularly excited about the opportunity to work with professionals in the field and learn from their expertise.</p>
+</div>
+
+<div class="container" id="contact">
+    <h2>Contact</h2>
+    <p>If you'd like to get in touch, feel free to email me at <a href="mailto:thp5447@nyu.edu">thp5447@nyu.edu</a>.</p>
+</div>
+
+<footer>
+    <p>&copy; 2025 Travis Perry. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

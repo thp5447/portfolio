@@ -1,0 +1,116 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+}
+nav {
+    text-align: center;
+    margin: 1rem 0;
+    color:white;
+}
+nav a {
+    text-decoration: none;
+    color: #4CAF50;
+    margin: 0 15px;
+    font-weight: bold;
+}
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 2rem auto;
+}
+
+.container p{
+    line-height: 1.6;
+}
+
+.container h2, .container h3 {
+    line-height: 1.5;  /* Adjust this value as well */
+}
+
+.project {
+    background: white;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.project h2 {
+    color: #4CAF50;
+}
+.project p {
+    line-height: 1.6;
+}
+.project a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: white;
+    background-color: #4CAF50;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.project-nav a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: white;
+    background-color: #4CAF50;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+ul li, ol li {
+    margin-bottom: 10px;  /* Adjust this value for the vertical space between items */
+}
+
+.project-screenshot {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.code-container {
+    display: flex;
+    flex-direction: column; /* Stack the images vertically */
+    overflow: auto;
+    max-height: 500px; /* Limit the height for scrolling */
+    margin-bottom: 30px; /* Space below the section */
+}
+
+.code-container img{
+    margin:0;
+}
+
+pre {
+    background: #2d2d2d; /* Dark background for code */
+    color: #f8f8f2; /* Light text for code */
+    font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace; /* Clean code font */
+    font-size: 16px; /* Slightly larger font size */
+    line-height: 1.6; /* Better spacing */
+    padding: 20px; /* Add padding for readability */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    overflow-x: auto; /* Horizontal scrolling for long lines */
+    max-width: 90%; /* Responsive width */
+    margin: 20px auto; /* Center the block */
+}
+
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem 0;
+    background: #333;
+    color: white;
+}

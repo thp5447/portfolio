@@ -1,3 +1,122 @@
+/*
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+}
+nav {
+    text-align: center;
+    margin: 1rem 0;
+    color:white;
+}
+nav a {
+    text-decoration: none;
+    color: #4CAF50;
+    margin: 0 15px;
+    font-weight: bold;
+}
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 2rem auto;
+}
+
+.container p{
+    line-height: 1.6;
+}
+
+.container h2, .container h3 {
+    line-height: 1.5;  
+}
+
+.project {
+    background: white;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.project h2 {
+    color: #4CAF50;
+}
+.project p {
+    line-height: 1.6;
+}
+.project a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: white;
+    background-color: #4CAF50;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.project-nav a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: white;
+    background-color: #4CAF50;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+ul li, ol li {
+    margin-bottom: 10px;  
+}
+
+.project-screenshot {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.code-container {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    max-height: 500px;
+    margin-bottom: 30px; 
+}
+
+.code-container img{
+    margin:0;
+}
+
+pre {
+    background: #2d2d2d; 
+    color: #f8f8f2; 
+    font-family: 'Fira Code', Consolas, Monaco, 'Courier New', monospace; 
+    font-size: 16px;
+    line-height: 1.6; 
+    padding: 20px;
+    border-radius: 8px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    overflow-x: auto; 
+    max-width: 90%; 
+    margin: 20px auto;
+}
+
+
+footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem 0;
+    background: #333;
+    color: white;
+}
+
+*/
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -80,6 +199,22 @@ ul li, ol li {
     margin-bottom: 20px;
 }
 
+.project-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    margin-right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+}
+  
+.project-link:hover {
+    background-color: #45a049;
+}
+  
+
 .code-container {
     display: flex;
     flex-direction: column; /* Stack the images vertically */
@@ -114,3 +249,4 @@ footer {
     background: #333;
     color: white;
 }
+
